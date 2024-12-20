@@ -1,0 +1,47 @@
+#сюда вставляем запрос к хане
+queryHana = ('''
+              	hana_query''')
+#выполняем
+from sqlalchemy import create_engine
+import pandas as pd
+# Задаём данные для подключения к GP
+HANA_CONNECTION_STRING = 'hana://logg:pass@host:port'
+#создаем движок подключения
+engine = create_engine(HANA_CONNECTION_STRING)
+connection = engine.connect()
+#читаем результат скл как ДФ
+df = pd.read_sql(queryHana, engine)
+engine.dispose()
+display (df)
+#грузим в ексельку
+df.to_excel('C:\\Users\\user\\Desktop\\hana_modified_sql_to_xlsx_test.xlsx', index=False)
+
+#сюда вставляем свой запрос к GP
+queryGP = '''gp_query'''
+#выполняем
+import sqlalchemy as sqlal
+import pandas as pd
+# Задаём данные для подключения к GP
+context = {
+    'DATABASE' : 'db_name',
+    'USER' : 'user_login',
+    'HOST' : 'host',
+    'PASSWORD' : 'user_pass'
+}
+# создаём движок подключения
+def get_engine():
+  string = 'postgresql://{db_user}:{db_password}@{db_host}/{db_database}'.format(
+      db_user = context['USER'],
+      db_password = context['PASSWORD'],
+      db_host = context['HOST'],
+      db_database = context['DATABASE'])
+  gp_connection = sqlal.create_engine(string, pool_pre_ping=True)
+  return gp_connection
+query = [queryGP]
+engine = get_engine()
+#читаем результат скл как ДФ
+df = pd.read_sql(queryGP, engine)
+engine.dispose()
+display (df)
+#грузим в ексельку
+df.to_excel('C:\\Users\\user\\Desktop\\gp_sql_to_xlsx_test2.xlsx', index=False)
